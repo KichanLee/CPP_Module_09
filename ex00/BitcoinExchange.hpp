@@ -20,9 +20,11 @@ class BitcoinExchange {
  public:
   BitcoinExchange();
   ~BitcoinExchange();
-  void open_File(const char file[]);
+  void open_File(int ac, const char file[]);
+  std::string get_text();
   bool check_Date(std::string file);
   bool check_Value(std::string file);
+  void parsing_Text();
 };
 
 #endif
