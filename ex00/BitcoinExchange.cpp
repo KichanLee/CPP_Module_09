@@ -57,7 +57,7 @@ void BitcoinExchange::parseText(const std::string& text) {
 void BitcoinExchange::open_File(int ac, const char file[]) {
   if (ac != 2) throw std::runtime_error("Error: could not open file.");
   open_csv_File();
-  open_input_File(ac, file);
+  open_input_File(file);
 }
 
 void BitcoinExchange::open_csv_File() {
@@ -68,16 +68,14 @@ void BitcoinExchange::open_csv_File() {
   read_File(this->_csv_in, this->_csv_text);
 }
 
-void read_File(const std::ifstream& in, const std::string& txt) {
-  in.seekg(0, std::ios::end);
-  int size = in.tellg();
-  txt.resize(size);
-  in.seekg(0, std::ios::beg);
-  in.read(&txt[0], size);
+void BitcoinExchange::read_File(std::ifstream& in, std::string& txt) {
+  std::stringstream buffer;
+  buffer << in.rdbuf();
+  txt = buffer.str();
   std::cout << txt << std::endl;
 }
 
-void BitcoinExchange::open_input_File(int ac, const char file[]) {
+void BitcoinExchange::open_input_File(const char file[]) {
   this->_fileName = file;
   this->_input_in.open(this->_fileName.c_str());
   if (!this->_input_in.is_open())
@@ -86,7 +84,5 @@ void BitcoinExchange::open_input_File(int ac, const char file[]) {
   read_File(this->_input_in, this->_input_text);
 }
 
-std::string BitcoinExchange::get_input_text() const {
-  return (this->_input_text);
-}
-std::string BitcoinExchange::get_csv_text() const { return (this->_csv_text); }
+std::string BitcoinExchange::get_input_text() { return (this->_input_text); }
+std::string BitcoinExchange::get_csv_text() { return (this->_csv_text); }
