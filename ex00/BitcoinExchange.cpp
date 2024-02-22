@@ -10,6 +10,8 @@ BitcoinExchange& BitcoinExchange::operator=(const BitcoinExchange& rhs) {
 
 bool BitcoinExchange::check_Date(const std::string file) {
   (void)file;
+
+  // cpp 내장 함수 사용
   //   std::string substr = " | ";
   //   size_t pos = this->text.find(substr);
   //   std::string str = "Hello World\n";
@@ -26,7 +28,7 @@ void BitcoinExchange::input_map(std::string key, std::string value) {
   result = std::strtod(value.c_str(), &endPtr);
   std::map<std::string, double>::iterator it;
 
-  this->keyval[key] = result;
+  this->_input_keyval[key] = result;
   std::cout << "Key: " << key << ", Value: " << result << std::endl;
 }
 
@@ -38,13 +40,11 @@ void BitcoinExchange::parseText(const std::string& text) {
   while ((pos_bar = text.find("|", start)) != std::string::npos) {
     end = text.find("\n", pos_bar);
     if (end == std::string::npos) {
-      end = text.length();  // 마지막 줄인 경우
+      end = text.length();
     }
-
     std::string key = text.substr(start, pos_bar - start);
     std::string value = text.substr(pos_bar + 1, end - pos_bar - 1);
 
-    // 공백 제거 (옵션)
     key.erase(remove_if(key.begin(), key.end(), ::isspace), key.end());
     value.erase(remove_if(value.begin(), value.end(), ::isspace), value.end());
 
@@ -56,18 +56,37 @@ void BitcoinExchange::parseText(const std::string& text) {
 
 void BitcoinExchange::open_File(int ac, const char file[]) {
   if (ac != 2) throw std::runtime_error("Error: could not open file.");
-
-  this->fileName = file;
-  this->in.open(this->fileName.c_str());
-  if (!this->in.is_open())
-    throw std::runtime_error("Error: could not open file.");
-
-  this->in.seekg(0, std::ios::end);
-  int size = in.tellg();
-  this->text.resize(size);
-  this->in.seekg(0, std::ios::beg);
-  this->in.read(&this->text[0], size);
-  std::cout << this->text << std::endl;
+  open_csv_File();
+  open_input_File(ac, file);
 }
 
-std::string BitcoinExchange::get_text() { return (this->text); }
+void BitcoinExchange::open_csv_File() {
+  this->_csv_in.open("data.csv");
+  if (!this->_csv_in.is_open())
+    throw std::runtime_error("Error : could not open file.");
+
+  read_File(this->_csv_in, this->_csv_text);
+}
+
+void read_File(const std::ifstream& in, const std::string& txt) {
+  in.seekg(0, std::ios::end);
+  int size = in.tellg();
+  txt.resize(size);
+  in.seekg(0, std::ios::beg);
+  in.read(&txt[0], size);
+  std::cout << txt << std::endl;
+}
+
+void BitcoinExchange::open_input_File(int ac, const char file[]) {
+  this->_fileName = file;
+  this->_input_in.open(this->_fileName.c_str());
+  if (!this->_input_in.is_open())
+    throw std::runtime_error("Error: could not open file.");
+
+  read_File(this->_input_in, this->_input_text);
+}
+
+std::string BitcoinExchange::get_input_text() const {
+  return (this->_input_text);
+}
+std::string BitcoinExchange::get_csv_text() const { return (this->_csv_text); }

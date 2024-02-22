@@ -1,17 +1,22 @@
-#include <iostream>
-#include <string>
+// redirecting cout's output thrrough its stream buffer
+#include <fstream>   // std::ofstream
+#include <iostream>  // std::streambuf, std::cout
 
 int main() {
-  std::string str = "Hello, World!";
+  std::streambuf *psbuf, *backup;
+  std::ofstream filestr;
+  filestr.open("test.txt");
 
-  // Create a substring from position 7 of length 5
-  std::string sub = str.substr(7, 1);
-  std::cout << "Substring: " << sub << std::endl;  // Outputs: World
+  backup = std::cout.rdbuf();  // back up cout's streambuf
 
-  // Create a substring from position 7 until the end of the string
-  std::string subToEnd = str.substr(7);
-  std::cout << "Substring to end: " << subToEnd
-            << std::endl;  // Outputs: World!
+  psbuf = filestr.rdbuf();  // get file's streambuf
+  std::cout.rdbuf(psbuf);   // assign streambuf to cout
+
+  std::cout << "This is written to the file";
+
+  std::cout.rdbuf(backup);  // restore cout's original streambuf
+
+  filestr.close();
 
   return 0;
 }
