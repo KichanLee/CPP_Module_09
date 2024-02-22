@@ -67,6 +67,10 @@
         "deque": "cpp",
         "fstream": "cpp",
         "iomanip": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "__verbose_abort": "cpp",
+        "charconv": "cpp",
+        "clocale": "cpp",
+        "variant": "cpp"
     }
 }
