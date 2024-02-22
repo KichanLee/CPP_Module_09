@@ -5,7 +5,8 @@ int main(int ac, const char* av[]) {
     BitcoinExchange bp;
     bp.open_File(ac, av[1]);
     bp.check_Date(bp.get_text());
-    bp.parsing_Text();
+    bp.parseText(bp.get_text());
+
   } catch (const std::exception& e) {
     std::cerr << e.what() << '\n';
   }

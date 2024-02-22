@@ -8,7 +8,7 @@ BitcoinExchange& BitcoinExchange::operator=(const BitcoinExchange& rhs) {
   return (*this);
 }
 
-bool BitcoinExchange::check_Date(std::string file) {
+bool BitcoinExchange::check_Date(const std::string file) {
   (void)file;
   //   std::string substr = " | ";
   //   size_t pos = this->text.find(substr);
@@ -20,20 +20,38 @@ bool BitcoinExchange::check_Date(std::string file) {
   return (true);
 }
 
-void BitcoinExchange::parsing_Text() {
-  // 개행을 찾고 그 안에서 나눠줘야한다.
-  std::string substr = "|";
+void BitcoinExchange::input_map(std::string key, std::string value) {
+  double result = 0;
+  char* endPtr;
+  result = std::strtod(value.c_str(), &endPtr);
+  std::map<std::string, double>::iterator it;
 
-  size_t pos_bar = this->text.find(substr);
-  std::string key = this->text.substr(0, pos_bar);
+  this->keyval[key] = result;
+  std::cout << "Key: " << key << ", Value: " << result << std::endl;
+}
 
-  size_t pos_enter = this->text.find('\n');
-  std::string value = this->text.substr(pos_bar + 1, pos_enter);
+void BitcoinExchange::parseText(const std::string& text) {
+  size_t start = 0;
+  size_t end;
+  size_t pos_bar;
 
-  //   std::cout << "key : " << key << std::endl;
-  std::cout << "value : " << value << std::endl;
+  while ((pos_bar = text.find("|", start)) != std::string::npos) {
+    end = text.find("\n", pos_bar);
+    if (end == std::string::npos) {
+      end = text.length();  // 마지막 줄인 경우
+    }
 
-  return;
+    std::string key = text.substr(start, pos_bar - start);
+    std::string value = text.substr(pos_bar + 1, end - pos_bar - 1);
+
+    // 공백 제거 (옵션)
+    key.erase(remove_if(key.begin(), key.end(), ::isspace), key.end());
+    value.erase(remove_if(value.begin(), value.end(), ::isspace), value.end());
+
+    input_map(key, value);
+    std::cout << "Key: " << key << ", Value: " << value << std::endl;
+    start = end + 1;
+  }
 }
 
 void BitcoinExchange::open_File(int ac, const char file[]) {

@@ -1,6 +1,7 @@
 #ifndef __BITCOINEXCHANGE_HPP_
 #define __BITCOINEXCHANGE_HPP_
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -15,16 +16,17 @@ class BitcoinExchange {
   std::string text;
   std::ifstream in;
   std::ofstream out;
-  std::map<std::string, int> keyval;
+  std::map<std::string, double> keyval;
 
  public:
   BitcoinExchange();
   ~BitcoinExchange();
   void open_File(int ac, const char file[]);
   std::string get_text();
-  bool check_Date(std::string file);
-  bool check_Value(std::string file);
-  void parsing_Text();
+  bool check_Date(const std::string file);
+  bool check_Value(const std::string file);
+  void parseText(const std::string &text);
+  void input_map(std::string key, std::string value);
 };
 
 #endif
