@@ -1,22 +1,13 @@
-// redirecting cout's output thrrough its stream buffer
-#include <fstream>   // std::ofstream
-#include <iostream>  // std::streambuf, std::cout
+#include <iostream>
+#include <string>
 
 int main() {
-  std::streambuf *psbuf, *backup;
-  std::ofstream filestr;
-  filestr.open("test.txt");
+  const std::string year = "2021-22-09";
 
-  backup = std::cout.rdbuf();  // back up cout's streambuf
+  std::cout << year.at(4) << "\n";
+  std::cout << year.at(7) << "\n";
 
-  psbuf = filestr.rdbuf();  // get file's streambuf
-  std::cout.rdbuf(psbuf);   // assign streambuf to cout
-
-  std::cout << "This is written to the file";
-
-  std::cout.rdbuf(backup);  // restore cout's original streambuf
-
-  filestr.close();
-
-  return 0;
+  std::string _year = year.substr(0, 4);
+  const char *test = _year.c_str();
+  std::cout << _year << std::endl;
 }

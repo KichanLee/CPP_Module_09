@@ -42,64 +42,98 @@ void BitcoinExchange::input_map(std::string key, std::string value) {
   double result = 0;
   char* endPtr;
   result = std::strtod(value.c_str(), &endPtr);
-  // if endPtr is not valid 예외처리
   std::map<std::string, double>::iterator it;
 
-  this->_input_keyval[key] = result;
+  this->_csv_keyval[key] = result;
   std::cout << "Key: " << key << ", Value: " << result << std::endl;
 }
 
-void BitcoinExchange::parseText(const std::string& text) {
+void BitcoinExchange::parseCsv(const std::string& csv) {
   size_t start = 0;
-  size_t pos_bar, pos_enter;
+  size_t pos_comma, pos_enter;
 
-  while ((start < text.length()) &&
-         ((pos_enter = text.find("\n", start)) != std::string::npos ||
-          start < text.length())) {
-    pos_bar = text.find("|", start);
-
-    // 개행 문자를 찾지 못하면 pos_enter는 text 길이로 설정
+  while ((start < csv.length()) &&
+         (((pos_enter = csv.find("\n", start)) != std::string::npos) ||
+          (start < csv.length()))) {
+    pos_comma = csv.find(",", start);
     if (pos_enter == std::string::npos) {
-      pos_enter = text.length();
+      pos_enter = csv.length();
     }
-
-    // "|" 구분자가 없는 경우 오류 메시지를 출력하고 해당 줄을 건너뜁니다.
-    if (pos_bar == std::string::npos || pos_bar > pos_enter) {
-      std::cerr << "Error: Missing '|' delimiter in line starting at position "
-                << start << std::endl;
-      start = pos_enter + 1;  // 다음 줄로 건너뜀
-      continue;
+    if (pos_comma == std::string::npos || pos_comma > pos_enter) {
+      throw std::runtime_error(
+          "Error: Missing ','  in line starting at position");
     }
-
-    std::string key = text.substr(start, pos_bar - start);
-    std::string value = text.substr(pos_bar + 1, pos_enter - (pos_bar + 1));
-
-    key.erase(remove_if(key.begin(), key.end(), ::isspace), key.end());
-    value.erase(remove_if(value.begin(), value.end(), ::isspace), value.end());
-
-    if (!key.empty() && !value.empty()) {
-      input_map(key, value);
-    } else {
-      std::cerr << "Error: Invalid key or value in line starting at position "
-                << start << std::endl;
-    }
-
+    std::string key = csv.substr(start, pos_comma - start);
+    std::string value = csv.substr(pos_comma + 1, pos_enter - (pos_comma + 1));
+    input_map(key, value);
     start = pos_enter + 1;
   }
 }
 
-std::string BitcoinExchange::get_input_text() { return (this->_input_text); }
-std::string BitcoinExchange::get_csv_text() { return (this->_csv_text); }
+bool validFormat(std::string date) {
+  // 숫자만 일때 확인하기
+  if (date.length() != 10 || date.at(4) != '-' || date.at(7) != '-')
+    return (false);
+  return (true);
+}
+// 되는 경우 부터 진행하기
+
+void find_key(std::string& one_line) {
+  std::string _date = one_line.substr(0, 9);
+  if (!validFormat(_date))  //||)  // 월일 확인하기
+  {
+    std::cerr << "Error: bad input => " << _date << std::endl;
+  }
+}
+
+void BitcoinExchange::parseText(const std::string& text) {
+  size_t start = 0;
+  size_t pos_enter;
+  int i = 0;
+  std::cout << "text length : " << text.length() << std::endl;
+
+  while (start < text.length() &&
+         ((pos_enter = text.find("\n", start)) != std::string::npos)) {
+    std::string one_line = text.substr(start, pos_enter - start);
+
+    if (i == 0 && strcmp(one_line.c_str(), "date | value"))
+      throw std::runtime_error("Input.txt is Non-Formal");
+    find_key(one_line);
+    std::cout << one_line << std::endl;
+    start = pos_enter + 1;
+    ++i;
+  }
+}
+
+// bool validNum(std::string& one_line) {
+//   const char* _year = (one_line.substr(0, 3)).c_str();
+//   const char* _month = (one_line.substr(5, 6)).c_str();
+//   const char* _date = (one_line.substr(8, 9)).c_str();
+// }
+
+// bool parseOneline(std::string& one_line) {
+//   // if (!validFormat(one_line)) return (false);
+//   // if (!validNum(one_line)) return (false);
+// }
+
 bool BitcoinExchange::check_Date(const std::string file) {
   (void)file;
 
-  // cpp 내장 함수 사용
-  //   std::string substr = " | ";
-  //   size_t pos = this->text.find(substr);
-  //   std::string str = "Hello World\n";
-  //   if (pos != std::string::npos) {
-  //     std::cout << "Substring '" << substr << "' found at position: " << pos
-  //               << std::endl;
-  //   }
   return (true);
+}
+
+std::string BitcoinExchange::get_input_text() { return (this->_input_text); }
+std::string BitcoinExchange::get_csv_text() { return (this->_csv_text); }
+
+bool isLeapYear(int year) {
+  return (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+}
+
+bool valid(int year, int month, int day) {
+  if (year < 0 || month < 1 || month > 12 || day < 1) return false;
+
+  int daysInMonth[] = {
+      31, 28 + isLeapYear(year), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+  return day <= daysInMonth[month - 1];
 }

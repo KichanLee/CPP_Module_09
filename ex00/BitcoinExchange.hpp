@@ -20,7 +20,6 @@ class BitcoinExchange {
   std::ifstream _csv_in;
   std::ofstream _input_out;
   std::ofstream _csv_out;
-  std::map<std::string, double> _input_keyval;
   std::map<std::string, double> _csv_keyval;
 
  public:
@@ -35,7 +34,10 @@ class BitcoinExchange {
   bool check_Date(const std::string file);
   bool check_Value(const std::string file);
   void parseText(const std::string &text);
+  void parseCsv(const std::string &csv);
   void input_map(std::string key, std::string value);
+  bool isLeapYear(int year);
+  bool validDate(std::string date);
 };
 
 #endif
