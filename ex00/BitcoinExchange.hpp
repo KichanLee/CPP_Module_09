@@ -38,6 +38,7 @@ class BitcoinExchange {
   void input_map(std::string key, std::string value);
   bool isLeapYear(int year);
   bool validDate(std::string date);
+  void find_key(std::string &one_line);
 };
 
 #endif

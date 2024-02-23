@@ -45,7 +45,6 @@ void BitcoinExchange::input_map(std::string key, std::string value) {
   std::map<std::string, double>::iterator it;
 
   this->_csv_keyval[key] = result;
-  std::cout << "Key: " << key << ", Value: " << result << std::endl;
 }
 
 void BitcoinExchange::parseCsv(const std::string& csv) {
@@ -66,9 +65,12 @@ void BitcoinExchange::parseCsv(const std::string& csv) {
     std::string key = csv.substr(start, pos_comma - start);
     std::string value = csv.substr(pos_comma + 1, pos_enter - (pos_comma + 1));
     input_map(key, value);
+
     start = pos_enter + 1;
   }
 }
+
+// bool BitcoinExchange::check_Value(const std::string file) {}
 
 bool validFormat(std::string date) {
   // 숫자만 일때 확인하기
@@ -78,11 +80,27 @@ bool validFormat(std::string date) {
 }
 // 되는 경우 부터 진행하기
 
-void find_key(std::string& one_line) {
-  std::string _date = one_line.substr(0, 9);
+void BitcoinExchange::find_key(std::string& one_line) {
+  std::string _date = one_line.substr(0, 10);
+  std::string _val = one_line.substr(12, one_line.length());
+
+  std::cout << "_val" << _val << std::endl;
   if (!validFormat(_date))  //||)  // 월일 확인하기
-  {
     std::cerr << "Error: bad input => " << _date << std::endl;
+  else if (one_line.at(11) != '|') {
+    std::cerr << "Error: bad input =>  | is needed" << std::endl;
+    std::cerr << "Error: bad input =>  | is needed" << std::endl;
+    else if (!check_Value(_val)) {
+      std::co
+    }
+  } else {
+    std::map<std::string, double>::iterator it;
+    it = this->_csv_keyval.find(_date);
+    if (it != this->_csv_keyval.end()) {
+      std::cout << _date << " --> " << this->_csv_keyval[_date] << std::endl;
+    } else {
+      std::cout << _date << "은(는) 목록에 없습니다" << std::endl;
+    }
   }
 }
 
@@ -90,20 +108,55 @@ void BitcoinExchange::parseText(const std::string& text) {
   size_t start = 0;
   size_t pos_enter;
   int i = 0;
-  std::cout << "text length : " << text.length() << std::endl;
 
-  while (start < text.length() &&
-         ((pos_enter = text.find("\n", start)) != std::string::npos)) {
+  std::cout << "text.length() : " << text.length() << "\n";
+
+  while (start < text.length()) {
+    pos_enter = text.find("\n", start);
+
+    if (pos_enter == std::string::npos) {
+      pos_enter = text.length();
+    }
+
     std::string one_line = text.substr(start, pos_enter - start);
 
-    if (i == 0 && strcmp(one_line.c_str(), "date | value"))
+    if (i == 0 && one_line != "date | value")
       throw std::runtime_error("Input.txt is Non-Formal");
-    find_key(one_line);
-    std::cout << one_line << std::endl;
+    else if (i > 0)
+      find_key(one_line);
+
     start = pos_enter + 1;
     ++i;
+    if (pos_enter == text.length()) break;
   }
 }
+
+// void BitcoinExchange::parseText(const std::string& text) {
+//   size_t start = 0;
+//   size_t pos_enter;
+//   int i = 0;
+
+//   std::cout << "text.length() : " << text.length() << "\n";
+
+//   while (start < text.length()) {
+//     if (pos_enter == std::string::npos) {
+//       pos_enter = text.length();
+//     }
+//     std::cout << "\nstart : " << start << std::endl;
+//     std::cout << "pos_enter : " << pos_enter << std::endl;
+//     // std::cout << "line count : " << i << std::endl;
+//     // std::cout << "key value : " << text << std::endl;
+//     std::string one_line = text.substr(start, pos_enter - start);
+
+//     if (i == 0 && one_line != "date | value")
+//       throw std::runtime_error("Input.txt is Non-Formal");
+//     else if (i > 0)
+//       find_key(one_line);
+//     start = pos_enter + 1;
+//     ++i;
+//     if (pos_enter == text.length()) break;
+//   }
+// }
 
 // bool validNum(std::string& one_line) {
 //   const char* _year = (one_line.substr(0, 3)).c_str();
@@ -129,7 +182,7 @@ bool isLeapYear(int year) {
   return (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
 }
 
-bool valid(int year, int month, int day) {
+bool valid_year(int year, int month, int day) {
   if (year < 0 || month < 1 || month > 12 || day < 1) return false;
 
   int daysInMonth[] = {
