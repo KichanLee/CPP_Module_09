@@ -32,13 +32,15 @@ class BitcoinExchange {
   std::string get_input_text();
   std::string get_csv_text();
   bool check_Date(const std::string file);
-  bool check_Value(const std::string file);
+  bool check_Value(const std::string file, double *count);
   void parseText(const std::string &text);
   void parseCsv(const std::string &csv);
   void input_map(std::string key, std::string value);
   bool isLeapYear(int year);
   bool validDate(std::string date);
+  bool valid_year(int year, int month, int day);
   void find_key(std::string &one_line);
+  bool validFormat(std::string date);
 };
 
 #endif

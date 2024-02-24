@@ -70,34 +70,86 @@ void BitcoinExchange::parseCsv(const std::string& csv) {
   }
 }
 
-// bool BitcoinExchange::check_Value(const std::string file) {}
-
-bool validFormat(std::string date) {
-  // 숫자만 일때 확인하기
-  if (date.length() != 10 || date.at(4) != '-' || date.at(7) != '-')
+bool BitcoinExchange::check_Value(const std::string _val, double* count) {
+  char* endptr;
+  double val = strtod(_val.c_str(), &endptr);
+  if (*endptr != '\0') {
+    std::cerr << "Error : Not a Number" << std::endl;
     return (false);
+  } else if (val < 0) {
+    std::cerr << "Error : Not a Positive Number." << std::endl;
+    return (false);
+  } else if (val > INT_MAX) {
+    std::cerr << "Error : too large a Number." << std::endl;
+    return (false);
+  }
+  *count = val;
   return (true);
 }
-// 되는 경우 부터 진행하기
+
+double change_number(char** endPtr, std::string value) {
+  double re = strtod(value.c_str(), endPtr);
+
+  // std::cout << "endPtr : " << *endPtr << std::endl;
+  if (*endPtr == '\0') {
+    std::cout << "is '\0";
+  }
+  return (re);
+}
+
+bool check_endPtr(char* end) { return (*end == '\0'); }
+
+bool BitcoinExchange::isLeapYear(int year) {
+  return (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+}
+
+bool BitcoinExchange::valid_year(int year, int month, int day) {
+  if (year < 0 || month < 1 || month > 12 || day < 1) return false;
+
+  int daysInMonth[] = {
+      31, 28 + isLeapYear(year), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+  return day <= daysInMonth[month - 1];
+}
+bool BitcoinExchange::validFormat(std::string date) {
+  if (date.length() != 10 || date.at(4) != '-' || date.at(7) != '-')
+    return (false);
+  std::string _year = date.substr(0, 4);
+  std::string _month = date.substr(5, 2);
+  std::string _date = date.substr(8, 2);
+
+  int year_int, month_int, date_int;
+
+  char* end;
+  year_int = static_cast<int>(change_number(&end, _year));
+  if (check_endPtr(end) == false) return (false);
+  month_int = static_cast<int>(change_number(&end, _month));
+  if (check_endPtr(end) == false) return (false);
+  date_int = static_cast<int>(change_number(&end, _date));
+  if (check_endPtr(end) == false) return (false);
+  if (!valid_year(year_int, month_int, date_int)) return (false);
+
+  return (true);
+}
 
 void BitcoinExchange::find_key(std::string& one_line) {
   std::string _date = one_line.substr(0, 10);
   std::string _val = one_line.substr(12, one_line.length());
-
-  std::cout << "_val" << _val << std::endl;
-  if (!validFormat(_date))  //||)  // 월일 확인하기
+  double count = 0;
+  if (validFormat(_date) == false) {
     std::cerr << "Error: bad input => " << _date << std::endl;
-  else if (one_line.at(11) != '|') {
+    return;
+  } else if (one_line.at(11) != '|') {
     std::cerr << "Error: bad input =>  | is needed" << std::endl;
-    std::cerr << "Error: bad input =>  | is needed" << std::endl;
-    else if (!check_Value(_val)) {
-      std::co
-    }
+    return;
+  } else if (check_Value(_val, &count) == false) {
+    return;
   } else {
     std::map<std::string, double>::iterator it;
     it = this->_csv_keyval.find(_date);
     if (it != this->_csv_keyval.end()) {
-      std::cout << _date << " --> " << this->_csv_keyval[_date] << std::endl;
+      std::cout << _date << " --> " << this->_csv_keyval[_date] * count
+                << std::endl;
     } else {
       std::cout << _date << "은(는) 목록에 없습니다" << std::endl;
     }
@@ -108,8 +160,6 @@ void BitcoinExchange::parseText(const std::string& text) {
   size_t start = 0;
   size_t pos_enter;
   int i = 0;
-
-  std::cout << "text.length() : " << text.length() << "\n";
 
   while (start < text.length()) {
     pos_enter = text.find("\n", start);
@@ -177,16 +227,3 @@ bool BitcoinExchange::check_Date(const std::string file) {
 
 std::string BitcoinExchange::get_input_text() { return (this->_input_text); }
 std::string BitcoinExchange::get_csv_text() { return (this->_csv_text); }
-
-bool isLeapYear(int year) {
-  return (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
-}
-
-bool valid_year(int year, int month, int day) {
-  if (year < 0 || month < 1 || month > 12 || day < 1) return false;
-
-  int daysInMonth[] = {
-      31, 28 + isLeapYear(year), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-  return day <= daysInMonth[month - 1];
-}
