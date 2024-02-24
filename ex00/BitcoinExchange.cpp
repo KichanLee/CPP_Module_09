@@ -134,15 +134,14 @@ void BitcoinExchange::find_closest_date(const std::string& target_date,
 
   if (it == this->_csv_keyval.end()) {
     --it;
-    std::cout << it->first << " => ";
+    std::cout << target_date << " => ";
     print_decimal(it->second * count);
   } else if (it == this->_csv_keyval.begin()) {
-    std::cout << it->first << " => ";
-    print_decimal(it->second * count);
+    std::cout << "Error: bad input =>" << target_date;
   } else {
     std::map<std::string, double>::iterator prev_it = it;
     --prev_it;
-    std::cout << prev_it->first << " => ";
+    std::cout << target_date << " => ";
     print_decimal(prev_it->second * count);
   }
 }
@@ -170,12 +169,11 @@ void BitcoinExchange::find_key(std::string& one_line) {
     std::map<std::string, double>::iterator it;
     it = this->_csv_keyval.find(_date);
     if (it != this->_csv_keyval.end()) {
-      std::cout << _date << " --> ";
+      std::cout << _date << " => ";
       print_decimal(this->_csv_keyval[_date] * count);
 
-    } else {
+    } else
       find_closest_date(_date, count);
-    }
   }
 }
 
