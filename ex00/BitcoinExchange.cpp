@@ -137,7 +137,7 @@ void BitcoinExchange::find_closest_date(const std::string& target_date,
     std::cout << target_date << " => ";
     print_decimal(it->second * count);
   } else if (it == this->_csv_keyval.begin()) {
-    std::cout << "Error: bad input =>" << target_date;
+    std::cout << "Error: bad input => " << target_date << std::endl;
   } else {
     std::map<std::string, double>::iterator prev_it = it;
     --prev_it;
@@ -154,27 +154,48 @@ void BitcoinExchange::print_decimal(double num) {
 }
 
 void BitcoinExchange::find_key(std::string& one_line) {
-  std::string _date = one_line.substr(0, 10);
-  std::string _val = one_line.substr(12, one_line.length());
-  double count = 0;
-  if (validFormat(_date) == false) {
-    std::cerr << "Error: bad input => " << _date << std::endl;
-    return;
-  } else if (one_line.at(11) != '|') {
-    std::cerr << "Error: bad input =>  | is needed" << std::endl;
-    return;
-  } else if (check_Value(_val, &count) == false) {
-    return;
-  } else {
-    std::map<std::string, double>::iterator it;
-    it = this->_csv_keyval.find(_date);
-    if (it != this->_csv_keyval.end()) {
-      std::cout << _date << " => ";
-      print_decimal(this->_csv_keyval[_date] * count);
+  size_t pos_bar;
+  size_t start = 0;
+  pos_bar = one_line.find("|", start);
 
-    } else
-      find_closest_date(_date, count);
+  std::string _date;
+  double count = 0;
+
+  std::cout << "pos_bar  : " << pos_bar << std::endl;
+  std::cout << "one_line.length : " << one_line.length() << std::endl;
+  if (pos_bar != 0 && pos_bar != std::string::npos) {
+    _date = one_line.substr(0, pos_bar);
+
+    if (_date.at(pos_bar - 1) != ' ') {
+      std::cerr << "Error: bad input => " << _date << std::endl;
+      return;
+    } else if (validFormat(one_line.substr(0, pos_bar - 1)) == false) {
+      std::cerr << "Error: bad input => " << _date << std::endl;
+      return;
+    }
+  } else if (check_Value(one_line.substr(pos_bar + 1, one_line.length()),
+                         &count) == false) {
+    return;
   }
+
+  else {
+    if (one_line.length() < 10 ||
+        (validFormat(one_line.substr(0, one_line.length())) == false)) {
+      std::cerr << "Error: bad input => " << one_line << std::endl;
+      return;
+    } else
+      std::cerr << "Error: bad input => '|' is needed." << std::endl;
+    return;
+  }
+
+  std::map<std::string, double>::iterator it;
+  it = this->_csv_keyval.find(_date);
+  if (it != this->_csv_keyval.end()) {
+    std::cout << _date << " => ";
+    print_decimal(this->_csv_keyval[_date] * count);
+
+  } else
+    find_closest_date(_date, count);
 }
 
 void BitcoinExchange::parseText(const std::string& text) {
@@ -184,13 +205,15 @@ void BitcoinExchange::parseText(const std::string& text) {
 
   while (start < text.length()) {
     pos_enter = text.find("\n", start);
-
+    if (start == pos_enter) {
+      start = pos_enter + 1;
+      continue;
+    }
     if (pos_enter == std::string::npos) {
       pos_enter = text.length();
     }
 
     std::string one_line = text.substr(start, pos_enter - start);
-
     if (i == 0 && one_line != "date | value")
       throw std::runtime_error("Input.txt is Non-Formal");
     else if (i > 0)

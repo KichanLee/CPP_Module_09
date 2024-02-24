@@ -1,7 +1,7 @@
 #include "BitcoinExchange.hpp"
 
 int main(int ac, const char* av[]) {
-  try {
+    try {
     BitcoinExchange bp;
     bp.open_File(ac, av[1]);
     bp.parseCsv(bp.get_csv_text());
