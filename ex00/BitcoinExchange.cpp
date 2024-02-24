@@ -89,11 +89,6 @@ bool BitcoinExchange::check_Value(const std::string _val, double* count) {
 
 double change_number(char** endPtr, std::string value) {
   double re = strtod(value.c_str(), endPtr);
-
-  // std::cout << "endPtr : " << *endPtr << std::endl;
-  if (*endPtr == '\0') {
-    std::cout << "is '\0";
-  }
   return (re);
 }
 
@@ -132,6 +127,33 @@ bool BitcoinExchange::validFormat(std::string date) {
   return (true);
 }
 
+void BitcoinExchange::find_closest_date(const std::string& target_date,
+                                        double count) {
+  std::map<std::string, double>::iterator it =
+      this->_csv_keyval.lower_bound(target_date);
+
+  if (it == this->_csv_keyval.end()) {
+    --it;
+    std::cout << it->first << " => ";
+    print_decimal(it->second * count);
+  } else if (it == this->_csv_keyval.begin()) {
+    std::cout << it->first << " => ";
+    print_decimal(it->second * count);
+  } else {
+    std::map<std::string, double>::iterator prev_it = it;
+    --prev_it;
+    std::cout << prev_it->first << " => ";
+    print_decimal(prev_it->second * count);
+  }
+}
+
+void BitcoinExchange::print_decimal(double num) {
+  if (num >= 100000)
+    std::cout << std::fixed << std::setprecision(1) << num << std::endl;
+  else
+    std::cout << num << std::endl;
+}
+
 void BitcoinExchange::find_key(std::string& one_line) {
   std::string _date = one_line.substr(0, 10);
   std::string _val = one_line.substr(12, one_line.length());
@@ -148,10 +170,11 @@ void BitcoinExchange::find_key(std::string& one_line) {
     std::map<std::string, double>::iterator it;
     it = this->_csv_keyval.find(_date);
     if (it != this->_csv_keyval.end()) {
-      std::cout << _date << " --> " << this->_csv_keyval[_date] * count
-                << std::endl;
+      std::cout << _date << " --> ";
+      print_decimal(this->_csv_keyval[_date] * count);
+
     } else {
-      std::cout << _date << "은(는) 목록에 없습니다" << std::endl;
+      find_closest_date(_date, count);
     }
   }
 }
@@ -179,50 +202,6 @@ void BitcoinExchange::parseText(const std::string& text) {
     ++i;
     if (pos_enter == text.length()) break;
   }
-}
-
-// void BitcoinExchange::parseText(const std::string& text) {
-//   size_t start = 0;
-//   size_t pos_enter;
-//   int i = 0;
-
-//   std::cout << "text.length() : " << text.length() << "\n";
-
-//   while (start < text.length()) {
-//     if (pos_enter == std::string::npos) {
-//       pos_enter = text.length();
-//     }
-//     std::cout << "\nstart : " << start << std::endl;
-//     std::cout << "pos_enter : " << pos_enter << std::endl;
-//     // std::cout << "line count : " << i << std::endl;
-//     // std::cout << "key value : " << text << std::endl;
-//     std::string one_line = text.substr(start, pos_enter - start);
-
-//     if (i == 0 && one_line != "date | value")
-//       throw std::runtime_error("Input.txt is Non-Formal");
-//     else if (i > 0)
-//       find_key(one_line);
-//     start = pos_enter + 1;
-//     ++i;
-//     if (pos_enter == text.length()) break;
-//   }
-// }
-
-// bool validNum(std::string& one_line) {
-//   const char* _year = (one_line.substr(0, 3)).c_str();
-//   const char* _month = (one_line.substr(5, 6)).c_str();
-//   const char* _date = (one_line.substr(8, 9)).c_str();
-// }
-
-// bool parseOneline(std::string& one_line) {
-//   // if (!validFormat(one_line)) return (false);
-//   // if (!validNum(one_line)) return (false);
-// }
-
-bool BitcoinExchange::check_Date(const std::string file) {
-  (void)file;
-
-  return (true);
 }
 
 std::string BitcoinExchange::get_input_text() { return (this->_input_text); }
