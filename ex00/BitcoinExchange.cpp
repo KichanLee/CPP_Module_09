@@ -80,7 +80,7 @@ bool BitcoinExchange::check_Value(const std::string _val, double* count) {
   } else if (val < 0) {
     std::cerr << "Error : Not a Positive Number." << std::endl;
     return (false);
-  } else if (val > INT_MAX) {
+  } else if (val > 1000) {
     std::cerr << "Error : too large a Number." << std::endl;
     return (false);
   }
