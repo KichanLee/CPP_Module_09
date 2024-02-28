@@ -139,7 +139,6 @@ void BitcoinExchange::find_closest_date(const std::string& target_date,
     std::cout << target_date << " => ";
     print_decimal(it->second * count);
   } else if (it == this->_csv_keyval.begin()) {
-    std::cout << "zzz\n";
     std::cout << "Error: bad input => " << target_date << std::endl;
   } else {
     std::map<std::string, double>::iterator prev_it = it;
@@ -178,7 +177,6 @@ void BitcoinExchange::find_key(std::string& one_line) {
       return;
     }
   } else {
-    // '|' 가 없는 경우 날짜가 제대로 있는지 확인해주기
     if (one_line.length() < 10) {
       std::cerr << "Error: bad input => " << one_line << std::endl;
       return;
