@@ -190,11 +190,9 @@ void PmergeMe::sort_start() {
 
 void PmergeMe::print_time(std::string str) {
   double usec = (((double)(end_time - start_time)) * 10 / CLOCKS_PER_SEC);
-  std::cout << "\nTime to process a range of " << this->std_vector.size();
+  std::cout << "Time to process a range of " << this->std_vector.size();
   std::cout << " elements with " << str << " : " << usec << " us\n";
 }
-
-/// @brief ///////////////////////////////////////////////////////////////////
 
 void PmergeMe::binary_search_deque(int value, int left, int right) {
   if (left >= right) {
