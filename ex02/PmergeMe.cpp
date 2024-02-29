@@ -1,8 +1,15 @@
 #include "PmergeMe.hpp"
 
-PmergeMe::PmergeMe(/* args */) {}
+PmergeMe::PmergeMe() {
+  this->k = 0;
+  this->p = 0;
+}
 PmergeMe::~PmergeMe() {}
-
+PmergeMe::PmergeMe(const PmergeMe &rhs) { (void)rhs; }
+PmergeMe &PmergeMe::operator=(const PmergeMe &rhs) {
+  (void)rhs;
+  return (*this);
+}
 void PmergeMe::Jacobnumber(int n) {
   this->JacobStyle_sequence_vec.push_back(0);
   this->JacobStyle_sequence_vec.push_back(1);
@@ -16,7 +23,6 @@ void PmergeMe::Jacobnumber(int n) {
 void PmergeMe::input_str(int ac, const char *str[]) {
   int i = 1;
   int input = 0;
-  this->k = 0;
   while (i < ac) {
     char *endPtr = NULL;
 
@@ -111,22 +117,17 @@ void PmergeMe::pair_make() {
           std::make_pair(this->std_vector[i + middle], this->std_vector[i]));
     }
   }
-  for (int i = 0; i < middle; i++) {
-    std::cout << "first  : " << pair_vector[i].first << " ";
-    std::cout << "second : " << pair_vector[i].second << " ";
-  }
-  std::cout << "\n";
   merge_sort(0, middle - 1);
 }
 
 void PmergeMe::pendtomain(int idx, int bidx) {
   while (idx > bidx) {
-    binaryinsert(this->pair_vector[idx - 1].second, 0, idx + this->k - 1);
+    binary_search(this->pair_vector[idx - 1].second, 0, idx + this->k - 1);
     idx--;
   }
 }
 
-void PmergeMe::binaryinsert(int value, int left, int right) {
+void PmergeMe::binary_search(int value, int left, int right) {
   if (left >= right) {
     if (this->mainchain_vector[left] > value) {
       this->k++;
@@ -145,13 +146,13 @@ void PmergeMe::binaryinsert(int value, int left, int right) {
     this->mainchain_vector.insert(this->mainchain_vector.begin() + mid, value);
     return;
   } else if (this->mainchain_vector[mid] < value) {
-    binaryinsert(value, mid + 1, right);
+    binary_search(value, mid + 1, right);
   } else {
-    binaryinsert(value, left, mid);
+    binary_search(value, left, mid);
   }
 }
 
-void PmergeMe::pendingorder(void) {
+void PmergeMe::order_pending() {
   int i = 1;
 
   while (1) {
@@ -159,7 +160,7 @@ void PmergeMe::pendingorder(void) {
       pendtomain(this->sizeofPair, JacobStyle_sequence_vec[i - 1]);
       if (std_vector.size() % 2 != 0) {
         int msize = mainchain_vector.size();
-        binaryinsert(oddvec, 0, msize - 1);
+        binary_search(oddvec, 0, msize - 1);
       }
       break;
     } else {
@@ -178,7 +179,7 @@ void PmergeMe::sort() {
     this->mainchain_vector.push_back(this->pair_vector[i].first);
     ++i;
   }
-  pendingorder();
+  order_pending();
 }
 
 void PmergeMe::sort_start() {
@@ -187,11 +188,135 @@ void PmergeMe::sort_start() {
   this->end_time = clock();
 }
 
-void PmergeMe::print_time() {
-  double usec = static_cast<double>((end_time - start_time)) * 1000000;
+void PmergeMe::print_time(std::string str) {
+  double usec = (((double)(end_time - start_time)) * 10 / CLOCKS_PER_SEC);
   std::cout << "\nTime to process a range of " << this->std_vector.size();
-  std::cout << " elements with std::vector : " << usec << " us\n";
+  std::cout << " elements with " << str << " : " << usec << " us\n";
 }
+
+/// @brief ///////////////////////////////////////////////////////////////////
+
+void PmergeMe::binary_search_deque(int value, int left, int right) {
+  if (left >= right) {
+    if (this->mainchain_deque[left] > value) {
+      this->p++;
+      this->mainchain_deque.insert(this->mainchain_deque.begin() + left, value);
+    } else {
+      this->p++;
+      this->mainchain_deque.insert(this->mainchain_deque.begin() + left + 1,
+                                   value);
+    }
+    return;
+  }
+  int mid = (left + right) / 2;
+  if (this->mainchain_deque[mid] == value) {
+    this->p++;
+    this->mainchain_deque.insert(this->mainchain_deque.begin() + mid, value);
+    return;
+  } else if (this->mainchain_deque[mid] < value) {
+    binary_search_deque(value, mid + 1, right);
+  } else {
+    binary_search_deque(value, left, mid);
+  }
+}
+
+void PmergeMe::pendtomain_deque(int idx, int bidx) {
+  while (idx > bidx) {
+    binary_search_deque(this->pair_vector[idx - 1].second, 0,
+                        idx + this->p - 1);
+    idx--;
+  }
+}
+
+void PmergeMe::Jacobnumber_deque(int n) {
+  this->JacobStyle_sequence_deque.push_back(0);
+  this->JacobStyle_sequence_deque.push_back(1);
+
+  for (int i = 2; i <= n + 2; ++i)
+    this->JacobStyle_sequence_deque.push_back(
+        this->JacobStyle_sequence_deque[i - 1] +
+        this->JacobStyle_sequence_deque[i - 2] * 2);
+}
+
+void PmergeMe::pair_make_deque() {
+  int middle = this->std_deq.size() / 2;
+  for (int i = 0; i < middle; ++i) {
+    if (this->std_deq[i] > this->std_deq[middle + i]) {
+      this->pair_deque.push_back(
+          std::make_pair(this->std_deq[i], this->std_deq[i + middle]));
+    } else {
+      this->pair_deque.push_back(
+          std::make_pair(this->std_deq[i + middle], this->std_deq[i]));
+    }
+  }
+  merge_sort_deque(0, middle - 1);
+}
+void PmergeMe::merge_deque(int left_side, int right_side, int middle) {
+  std::deque<std::pair<int, int> > left_deque(middle - left_side + 1);
+  std::deque<std::pair<int, int> > right_deque(right_side - middle);
+
+  for (int i = 0; i < static_cast<int>(left_deque.size()); ++i) {
+    left_deque[i] = this->pair_deque[left_side + i];
+  }
+  for (int i = 0; i < static_cast<int>(right_deque.size()); ++i)
+    right_deque[i] = this->pair_deque[middle + i + 1];
+
+  int l = 0;
+  int k = 0;
+  int c = left_side;
+  while (l < static_cast<int>(left_deque.size()) &&
+         k < static_cast<int>(right_deque.size())) {
+    if (left_deque[l].first <= right_deque[k].first)
+      this->pair_deque[c++] = left_deque[l++];
+    else
+      this->pair_deque[c++] = right_deque[k++];
+  }
+  while (l < static_cast<int>(left_deque.size()))
+    this->pair_deque[c++] = left_deque[l++];
+  while (k < static_cast<int>(right_deque.size()))
+    this->pair_deque[c++] = right_deque[k++];
+}
+
+void PmergeMe::merge_sort_deque(int left_side, int right_side) {
+  if (left_side < right_side) {
+    int middle = (left_side + right_side) / 2;
+    merge_sort_deque(left_side, middle);
+    merge_sort_deque(middle + 1, right_side);
+    merge_deque(left_side, right_side, middle);
+  }
+}
+
+void PmergeMe::order_pending_deque() {
+  int i = 1;
+
+  while (1) {
+    if (this->sizeofPair < this->JacobStyle_sequence_deque[i]) {
+      pendtomain_deque(this->sizeofPair, JacobStyle_sequence_deque[i - 1]);
+      if (std_deq.size() % 2 != 0) {
+        int msize = mainchain_deque.size();
+        binary_search_deque(oddvec, 0, msize - 1);
+      }
+      break;
+    } else {
+      pendtomain_deque(JacobStyle_sequence_deque[i],
+                       JacobStyle_sequence_deque[i - 1]);
+      i++;
+    }
+  }
+}
+
+void PmergeMe::sort_deque() {
+  this->sizeofPair = this->std_deq.size() / 2;
+  pair_make_deque();
+  Jacobnumber_deque(this->sizeofPair);
+  int i = 0;
+  while (i < this->sizeofPair) {
+    this->mainchain_deque.push_back(this->pair_deque[i].first);
+    ++i;
+  }
+  order_pending_deque();
+}
+
 void PmergeMe::execute(int ac, const char *av[]) {
   if (ac < 3) throw std::runtime_error("Arguments must be over three.");
   input_str(ac, av);
@@ -199,4 +324,9 @@ void PmergeMe::execute(int ac, const char *av[]) {
   print_vec("Before: ");
   sort_start();
   print_vec("After: ");
+  print_time("std::vector");
+  this->start_time = clock();
+  sort_deque();
+  this->end_time = clock();
+  print_time("std::deque");
 }

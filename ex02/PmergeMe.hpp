@@ -15,20 +15,23 @@ class PmergeMe {
   std::vector<int> mainchain_vector;
 
   std::deque<int> std_deq;
-  std::deque<std::pair<int, int> > _deque;
-  std::deque<int> JacobStyle_sequence_deque;  // 야곱 순서 시퀀스
+  std::deque<std::pair<int, int> > pair_deque;
+  std::deque<int> JacobStyle_sequence_deque;
   std::deque<int> mainchain_deque;
   clock_t start_time;
   clock_t end_time;
   int sizeofPair;
   int k;
+  int p;
   double oddvec;
+  PmergeMe(const PmergeMe& rhs);
+  PmergeMe& operator=(const PmergeMe& rhs);
 
  public:
-  PmergeMe(/* args */);
+  PmergeMe();
   ~PmergeMe();
-  void execute(int ac, const char *av[]);
-  void input_str(int ac, const char *str[]);
+  void execute(int ac, const char* av[]);
+  void input_str(int ac, const char* str[]);
   void check_sort();
   void print_vec(std::string str);
   void sort_start();
@@ -36,12 +39,19 @@ class PmergeMe {
   void pair_make();
   void merge_sort(int left_side, int right_side);
   void merge(int left_side, int right_side, int middle);
-  void print_time();
+  void print_time(std::string str);
   void Jacobnumber(int n);
-  void pendingorder();
+  void order_pending();
   void pendtomain(int idx, int bidx);
-  void binaryinsert(int value, int left, int right);
-  void mainsort(int left, int mid, int right);
+  void binary_search(int value, int left, int right);
+  void sort_deque();
+  void pair_make_deque();
+  void merge_sort_deque(int left_side, int right_side);
+  void merge_deque(int left_side, int right_side, int middle);
+  void Jacobnumber_deque(int n);
+  void order_pending_deque();
+  void pendtomain_deque(int idx, int bidx);
+  void binary_search_deque(int value, int left, int right);
 };
 
 #endif
